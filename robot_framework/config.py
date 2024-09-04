@@ -13,10 +13,7 @@ SCREENSHOT_SENDER = "robot@friend.dk"
 
 # Constant/Credential names
 ERROR_EMAIL = "Error Email"
-
-
-# Queue specific configs
-# ----------------------
+EFLYT_CREDS = "Eflyt"
 
 # The name of the job queue (if any)
 QUEUE_NAME = None
