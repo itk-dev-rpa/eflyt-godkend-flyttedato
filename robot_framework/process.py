@@ -32,7 +32,7 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
 
 def filter_cases(cases: list[Case]) -> list[Case]:
     """Filter cases based on the assigned case worker.
-    If the first two letters are EF, the case has received a reply on a lodging request.
+    If the first two letters are EF and the rest are numbers, the case has received a reply on a lodging request.
 
     Args:
         cases: List of cases to filter.
@@ -45,6 +45,7 @@ def filter_cases(cases: list[Case]) -> list[Case]:
         "Boligselskab"
     ]
 
+    # Only work on cases in the format EF1234, that only have one case type within the approved types
     filtered_cases = []
     for case in cases:
         if case.case_worker[:2].upper() == "EF" and case.case_worker[2:].isdigit() and len(case.case_types) == 1 and case.case_type[0] in approved_case_types:
