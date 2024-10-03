@@ -25,7 +25,8 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
     for case in cases:
         eflyt_search.open_case(browser, case.case_number)
         try:
-            handle_case(browser)
+            if handle_case(browser):
+                orchestrator_connection.log_info(f"Case {case.case_number} approved.")
         except NoSuchElementException as e:
             orchestrator_connection.log_error(e.msg)
 
@@ -42,35 +43,53 @@ def filter_cases(cases: list[Case]) -> list[Case]:
     """
     approved_case_types = [
         "Logivært",
-        "Boligselskab"
+        "Boligselskab",
+        "Manuel opgave",
+        "CPR notat",
+        "Særlig adresse"
     ]
 
     # Only work on cases in the format EF1234, that only have one case type within the approved types
     filtered_cases = []
     for case in cases:
-        if case.case_worker[:2].upper() == "EF" and case.case_worker[2:].isdigit() and len(case.case_types) == 1 and case.case_type[0] in approved_case_types:
+        if case.case_worker[:2].upper() == "EF" and case.case_worker[2:].isdigit() and all(t in approved_case_types for t in case.case_types) and "Logivært" in case.case_types:
             filtered_cases.append(case)
     return filtered_cases
 
 
-def handle_case(browser: webdriver.Chrome):
+def handle_case(browser: webdriver.Chrome) -> bool:
     """Check dates on each case, approve all cases where dates match.
 
     Args:
         browser: A selenium webdriver that has navigated to the case.
         case: A case that is currently open in the browser.
+
+    Returns:
+        Whether the case was approved or not
     """
     registered_date = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_GridViewMovingPersons_ctl02_lnkDateCPR").text
     browser.find_element(By.LINK_TEXT, "Vis svar").click()
     # browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_gvManuelOpfolgning_ctl05_lbtnVisSvar").click()
     response_date = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_txtFradato").get_attribute("value")
+
+    selection_table = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_rdoEDSLogivartResponseType")
+    request_match = False
+    for option in selection_table.find_elements(By.TAG_NAME, "td"):
+        selected = option.find_element(By.TAG_NAME, "input").get_attribute("checked") == "true"
+        content = option.find_element(By.TAG_NAME, "label").text
+        if selected and content == "Skal bo og opholde sig på min adresse":
+            request_match = True
+            break
+
     browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_btnLogivartResponseLuk").click()
 
-    if registered_date == response_date:  # Approve the case
+    if registered_date == response_date and request_match:  # Approve the case
         eflyt_case.approve_case(browser)
         if not eflyt_case.check_all_approved(browser):
             raise RuntimeError("An error occurred during case approval.")
         eflyt_case.add_note(browser, "Datoer stemmer overens, flytning godkendt.")
+        return True
+    return False
 
 
 if __name__ == '__main__':
