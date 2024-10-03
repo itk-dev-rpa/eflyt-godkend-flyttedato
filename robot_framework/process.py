@@ -69,7 +69,6 @@ def handle_case(browser: webdriver.Chrome) -> bool:
     """
     registered_date = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_GridViewMovingPersons_ctl02_lnkDateCPR").text
     browser.find_element(By.LINK_TEXT, "Vis svar").click()
-    # browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_gvManuelOpfolgning_ctl05_lbtnVisSvar").click()
     response_date = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_txtFradato").get_attribute("value")
 
     selection_table = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_rdoEDSLogivartResponseType")
