@@ -5,7 +5,7 @@ from datetime import date
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
+from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection, QueueStatus
 from itk_dev_shared_components.eflyt import eflyt_login, eflyt_search, eflyt_case
 from itk_dev_shared_components.eflyt.eflyt_case import Case
 
@@ -22,9 +22,11 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
     cases = eflyt_search.extract_cases(browser)
     cases = filter_cases(cases)
     for case in cases:
+        queue_element = orchestrator_connection.create_queue_element(config.QUEUE_NAME, reference=case.case_number)
         eflyt_search.open_case(browser, case.case_number)
         if handle_case(browser):
             orchestrator_connection.log_info(f"Case {case.case_number} approved.")
+        orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
 
 
 def filter_cases(cases: list[Case]) -> list[Case]:
@@ -58,7 +60,6 @@ def handle_case(browser: webdriver.Chrome) -> bool:
 
     Args:
         browser: A selenium webdriver that has navigated to the case.
-        case: A case that is currently open in the browser.
 
     Returns:
         Whether the case was approved or not
