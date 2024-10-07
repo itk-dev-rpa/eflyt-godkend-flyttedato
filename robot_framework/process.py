@@ -5,7 +5,6 @@ from datetime import date
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 from itk_dev_shared_components.eflyt import eflyt_login, eflyt_search, eflyt_case
 from itk_dev_shared_components.eflyt.eflyt_case import Case
@@ -24,11 +23,8 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
     cases = filter_cases(cases)
     for case in cases:
         eflyt_search.open_case(browser, case.case_number)
-        try:
-            if handle_case(browser):
-                orchestrator_connection.log_info(f"Case {case.case_number} approved.")
-        except NoSuchElementException as e:
-            orchestrator_connection.log_error(e.msg)
+        if handle_case(browser):
+            orchestrator_connection.log_info(f"Case {case.case_number} approved.")
 
 
 def filter_cases(cases: list[Case]) -> list[Case]:
