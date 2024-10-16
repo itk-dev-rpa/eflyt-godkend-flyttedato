@@ -13,15 +13,7 @@ SCREENSHOT_SENDER = "robot@friend.dk"
 
 # Constant/Credential names
 ERROR_EMAIL = "Error Email"
-
-
-# Queue specific configs
-# ----------------------
+EFLYT_CREDS = "Eflyt"
 
 # The name of the job queue (if any)
-QUEUE_NAME = None
-
-# The limit on how many queue elements to process
-MAX_TASK_COUNT = 100
-
-# ----------------------
+QUEUE_NAME = "Eflyt Godkend Flyttedato"
