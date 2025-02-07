@@ -65,7 +65,11 @@ def handle_case(browser: webdriver.Chrome) -> bool:
         Whether the case was approved or not
     """
     registered_date = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_GridViewMovingPersons_ctl02_lnkDateCPR").text
-    browser.find_element(By.LINK_TEXT, "Vis svar").click()
+    vis_svar_element = browser.find_element(By.LINK_TEXT, "Vis svar")
+    if vis_svar_element:
+        vis_svar_element.click()
+    else:
+        return False
     response_date = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_txtFradato").get_attribute("value")
 
     selection_table = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_rdoEDSLogivartResponseType")

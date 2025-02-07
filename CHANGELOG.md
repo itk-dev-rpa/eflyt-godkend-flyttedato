@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-02-07
+
+### Fixed
+
+- Added check on whether the "Vis var" button is actually shown
+
 ## [1.0.0] - 2024-10-03
 
 - Initial release
 
-[Unreleased]: https://github.com/itk-dev-rpa/eflyt-godkend-flyttedato/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/itk-dev-rpa/eflyt-godkend-flyttedato/compare/1.0.1..HEAD
+[1.0.1]: https://github.com/itk-dev-rpa/eflyt-godkend-flyttedato/releases/tag/1.0.1
 [1.0.0]: https://github.com/itk-dev-rpa/eflyt-godkend-flyttedato/releases/tag/1.0.0
