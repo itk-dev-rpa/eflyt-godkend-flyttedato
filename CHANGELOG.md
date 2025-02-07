@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added check on whether the "Vis var" button is actually shown
+- Added check on whether the "Vis svar" button is actually shown
 
 ## [1.0.0] - 2024-10-03
 
