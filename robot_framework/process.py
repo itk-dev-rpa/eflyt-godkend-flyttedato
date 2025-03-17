@@ -5,6 +5,8 @@ from datetime import date
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection, QueueStatus
 from itk_dev_shared_components.eflyt import eflyt_login, eflyt_search, eflyt_case
 from itk_dev_shared_components.eflyt.eflyt_case import Case
@@ -70,7 +72,10 @@ def handle_case(browser: webdriver.Chrome) -> bool:
         vis_svar_element.click()
     else:
         return False
-    response_date = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_txtFradato").get_attribute("value")
+    from_date_element = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_txtFradato"))
+    )
+    response_date = from_date_element.get_attribute("value")
 
     selection_table = browser.find_element(By.ID, "ctl00_ContentPlaceHolder2_ptFanePerson_moPersonTab_rdoEDSLogivartResponseType")
     request_match = False
