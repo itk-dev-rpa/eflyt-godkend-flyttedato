@@ -96,7 +96,10 @@ def handle_case(browser: webdriver.Chrome, case: Case) -> bool:
         eflyt_case.approve_case(browser)
         if not eflyt_case.check_all_approved(browser):
             raise RuntimeError("An error occurred during case approval.")
-        eflyt_case.add_note(browser, "Datoer stemmer overens, flytning godkendt.")
+        note_text = "Datoer stemmer overens, flytning godkendt."
+        if "Boligselskab" in case.case_types:
+            note_text += " Ingen beboere fundet på adressen."
+        eflyt_case.add_note(browser, note_text)
         return True
     return False
 
