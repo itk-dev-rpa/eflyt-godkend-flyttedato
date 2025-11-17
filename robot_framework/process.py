@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection, QueueStatus
 from itk_dev_shared_components.eflyt import eflyt_login, eflyt_search, eflyt_case
 from itk_dev_shared_components.eflyt.eflyt_case import Case
+import itk_dev_event_log
 
 from robot_framework import config
 
@@ -17,6 +18,10 @@ from robot_framework import config
 def process(orchestrator_connection: OrchestratorConnection) -> None:
     """Do the primary process of the robot."""
     orchestrator_connection.log_trace("Running process.")
+
+    event_log = orchestrator_connection.get_constant("Event Log")
+    itk_dev_event_log.setup_logging(event_log.value)
+
     eflyt_credentials = orchestrator_connection.get_credential(config.EFLYT_CREDS)
     browser = eflyt_login.login(eflyt_credentials.username, eflyt_credentials.password)
 
@@ -28,6 +33,7 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
         eflyt_search.open_case(browser, case.case_number)
         if handle_case(browser, case):
             orchestrator_connection.log_info(f"Case {case.case_number} approved.")
+            itk_dev_event_log.emit(orchestrator_connection.process_name, "Case approved.")
         orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
 
 
@@ -107,5 +113,5 @@ def handle_case(browser: webdriver.Chrome, case: Case) -> bool:
 if __name__ == '__main__':
     conn_string = os.getenv("OpenOrchestratorConnString")
     crypto_key = os.getenv("OpenOrchestratorKey")
-    oc = OrchestratorConnection("Eflyt Test", conn_string, crypto_key, "")
+    oc = OrchestratorConnection("Eflyt Test", conn_string, crypto_key, "", '')
     process(oc)
