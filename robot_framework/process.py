@@ -1,6 +1,5 @@
 """This module contains the main process of the robot."""
 
-import os
 from datetime import date
 
 from selenium import webdriver
@@ -108,10 +107,3 @@ def handle_case(browser: webdriver.Chrome, case: Case) -> bool:
         eflyt_case.add_note(browser, note_text)
         return True
     return False
-
-
-if __name__ == '__main__':
-    conn_string = os.getenv("OpenOrchestratorConnString")
-    crypto_key = os.getenv("OpenOrchestratorKey")
-    oc = OrchestratorConnection("Eflyt Test", conn_string, crypto_key, "", '')
-    process(oc)
