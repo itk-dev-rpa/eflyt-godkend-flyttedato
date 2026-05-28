@@ -12,6 +12,7 @@ from itk_dev_shared_components.eflyt.eflyt_case import Case
 import itk_dev_event_log
 
 from robot_framework import config
+from robot_framework.exceptions import BusinessError, handle_error
 
 
 def process(orchestrator_connection: OrchestratorConnection) -> None:
@@ -29,11 +30,18 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
     cases = filter_cases(cases)
     for case in cases:
         queue_element = orchestrator_connection.create_queue_element(config.QUEUE_NAME, reference=case.case_number)
-        eflyt_search.open_case(browser, case.case_number)
-        if handle_case(browser, case):
-            orchestrator_connection.log_info(f"Case {case.case_number} approved.")
-            itk_dev_event_log.emit(orchestrator_connection.process_name, "Case approved.")
-        orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
+        try:
+            eflyt_search.open_case(browser, case.case_number)
+            if handle_case(browser, case):
+                orchestrator_connection.log_info(f"Case {case.case_number} approved.")
+                itk_dev_event_log.emit(orchestrator_connection.process_name, "Case approved.")
+            orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
+        except BusinessError:
+            orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.FAILED, "Business error")
+            raise
+        # pylint: disable-next = broad-exception-caught
+        except Exception as error:
+            handle_error(f"Error in case {case.case_number}", error, queue_element, orchestrator_connection)
 
 
 def filter_cases(cases: list[Case]) -> list[Case]:
