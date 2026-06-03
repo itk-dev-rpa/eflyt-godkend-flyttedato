@@ -12,7 +12,6 @@ from itk_dev_shared_components.eflyt.eflyt_case import Case
 import itk_dev_event_log
 
 from robot_framework import config
-from robot_framework.exceptions import BusinessError, handle_error
 
 
 def process(orchestrator_connection: OrchestratorConnection) -> None:
@@ -36,12 +35,9 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
                 orchestrator_connection.log_info(f"Case {case.case_number} approved.")
                 itk_dev_event_log.emit(orchestrator_connection.process_name, "Case approved.")
             orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
-        except BusinessError:
-            orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.FAILED, "Business error")
-            raise
         # pylint: disable-next = broad-exception-caught
         except Exception as error:
-            handle_error(f"Error in case {case.case_number}", error, queue_element, orchestrator_connection)
+            raise RuntimeError(f"Error in case {case.case_number}") from error
 
 
 def filter_cases(cases: list[Case]) -> list[Case]:
