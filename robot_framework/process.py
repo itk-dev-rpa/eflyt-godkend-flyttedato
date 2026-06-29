@@ -29,11 +29,15 @@ def process(orchestrator_connection: OrchestratorConnection) -> None:
     cases = filter_cases(cases)
     for case in cases:
         queue_element = orchestrator_connection.create_queue_element(config.QUEUE_NAME, reference=case.case_number)
-        eflyt_search.open_case(browser, case.case_number)
-        if handle_case(browser, case):
-            orchestrator_connection.log_info(f"Case {case.case_number} approved.")
-            itk_dev_event_log.emit(orchestrator_connection.process_name, "Case approved.")
-        orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
+        try:
+            eflyt_search.open_case(browser, case.case_number)
+            if handle_case(browser, case):
+                orchestrator_connection.log_info(f"Case {case.case_number} approved.")
+                itk_dev_event_log.emit(orchestrator_connection.process_name, "Case approved.")
+            orchestrator_connection.set_queue_element_status(queue_element.id, QueueStatus.DONE)
+        # pylint: disable-next = broad-exception-caught
+        except Exception as error:
+            raise RuntimeError(f"Error in case {case.case_number}") from error
 
 
 def filter_cases(cases: list[Case]) -> list[Case]:
